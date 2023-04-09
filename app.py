@@ -5,7 +5,6 @@ import os
 import zipfile
 import time
 from flask import Flask, render_template, request, send_file
-import ffmpeg
 
 app = Flask(__name__)
 
@@ -38,18 +37,19 @@ def download_video():
             subprocess.run(command, check=True)
             print("Playlist download complete")
 
-            # Convert the videos using FFmpeg
+            # Convert the videos to the specified format using ffmpeg
             for filename in os.listdir(temp_dir):
-                input_file = f'{temp_dir}/{filename}'
-                output_file = f'{temp_dir}/converted.{format}'
-                ffmpeg.input(input_file).output(output_file).run()
+                file_path = os.path.join(temp_dir, filename)
+                output_filename = f"{os.path.splitext(file_path)[0]}.{format}"
+                subprocess.run(['ffmpeg', '-i', file_path, output_filename], check=True)
+                os.remove(file_path)
 
             # Create a zip file containing the converted files
             zip_filename = f'{request_id}.zip'
             with zipfile.ZipFile(zip_filename, 'w') as zip_file:
                 for filename in os.listdir(temp_dir):
-                    if filename.endswith(f'.{format}'):
-                        zip_file.write(os.path.join(temp_dir, filename), filename)
+                    converted_filename = f"{os.path.splitext(filename)[0]}.{format}"
+                    zip_file.write(os.path.join(temp_dir, converted_filename), converted_filename)
 
             # Send the zip file for download
             return send_file(zip_filename, as_attachment=True)
@@ -60,21 +60,29 @@ def download_video():
             os.makedirs(video_dir, exist_ok=True)
 
             # Download a single video
-            command = ['yt-dlp', url, '--no-playlist']
+            command = ['yt-dlp', url, '--no-playlist','-o', f'{video_dir}/%(title)s.%(ext)s']
 
             if quality:
                 command.extend(['-f', quality])
 
-            subprocess.run(command, check=True)
-            print("Video download complete")
+            subprocess.Popen(command)
+            print("Video download started")
+            message = "Video download started"
 
-            # Convert the video using FFmpeg
-            input_file = f'{video_dir}/{os.listdir(video_dir)[0]}'
-            output_file = f'{video_dir}/converted.{format}'
-            ffmpeg.input(input_file).output(output_file).run()
+            # Wait for 20 seconds for the file to download
+            time.sleep(20)
+
+            # Get the filename of the downloaded file
+            filename = subprocess.check_output(['ls', video_dir]).decode().strip()
+            file_path = os.path.join(video_dir, filename)
+
+            # Convert the video to the specified format using ffmpeg
+            output_filename = f"{os.path.splitext(file_path)[0]}.{format}"
+            subprocess.run(['ffmpeg', '-i', file_path, output_filename], check=True)
+            os.remove(file_path)
 
             # Send the file for download
-            return send_file(output_file, as_attachment=True)
+            return send_file(output_filename, as_attachment=True)
 
     except Exception as e:
         print("Error downloading video:", e)
@@ -88,6 +96,7 @@ def download_video():
             os.remove(zip_filename)
         else:
             shutil.rmtree(video_dir, ignore_errors=True)
+            os.remove(output_filename)
 
 if __name__ == '__main__':
     app.run(debug=True)
