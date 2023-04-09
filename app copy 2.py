@@ -56,7 +56,7 @@ def download_video():
 
         else:
             # Create a temporary directory to store the downloaded file
-            video_dir = f'temp_{request_id}'
+            video_dir = f'webdlp_{request_id}'
             os.makedirs(video_dir, exist_ok=True)
 
             # Download a single video
