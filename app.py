@@ -70,7 +70,7 @@ def download_video():
             message = "Video download started"
 
             # Wait for 20 seconds for the file to download
-            time.sleep(20)
+            time.sleep(80000)
 
             # Get the filename of the downloaded file
             filename = subprocess.check_output(['ls', video_dir]).decode().strip()

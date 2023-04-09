@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, send_file
+import uuid
+import shutil
 import subprocess
 import os
 import zipfile
 import time
+from flask import Flask, render_template, request, send_file
 
 app = Flask(__name__)
 
@@ -17,49 +19,52 @@ def download_video():
     is_playlist = request.form.get('is_playlist')
     format = request.form.get('format')
 
-    if is_playlist:
-        # Create a temporary directory to store the downloaded files
-        temp_dir = 'flyawayisthebestfr'
-        os.makedirs(temp_dir, exist_ok=True)
+    # Generate a unique identifier for the request
+    request_id = str(uuid.uuid4())
 
-        # Download the playlist
-        command = ['yt-dlp', url, '-o', f'{temp_dir}/%(playlist_index)s-%(title)s.%(ext)s']
+    try:
+        if is_playlist:
+            # Create a temporary directory to store the downloaded files
+            temp_dir = f'temp_{request_id}'
+            os.makedirs(temp_dir, exist_ok=True)
 
-        if quality:
-            command.extend(['-f', quality])
+            # Download the playlist
+            command = ['yt-dlp', url, '-o', f'{temp_dir}/%(playlist_index)s-%(title)s.%(ext)s']
 
-        if format:
-            command.extend(['-f', 'best', '--recode-video', format])
+            if quality:
+                command.extend(['-f', quality])
 
-        try:
             subprocess.run(command, check=True)
             print("Playlist download complete")
 
-            # Create a zip file containing the downloaded files
-            zip_filename = f'{temp_dir}.zip'
+            # Convert the videos to the specified format using ffmpeg
+            for filename in os.listdir(temp_dir):
+                file_path = os.path.join(temp_dir, filename)
+                output_filename = f"{os.path.splitext(file_path)[0]}.{format}"
+                subprocess.run(['ffmpeg', '-i', file_path, output_filename], check=True)
+                os.remove(file_path)
+
+            # Create a zip file containing the converted files
+            zip_filename = f'{request_id}.zip'
             with zipfile.ZipFile(zip_filename, 'w') as zip_file:
                 for filename in os.listdir(temp_dir):
-                    zip_file.write(os.path.join(temp_dir, filename), filename)
+                    converted_filename = f"{os.path.splitext(filename)[0]}.{format}"
+                    zip_file.write(os.path.join(temp_dir, converted_filename), converted_filename)
 
             # Send the zip file for download
             return send_file(zip_filename, as_attachment=True)
 
-        except Exception as e:
-            print("Error downloading playlist:", e)
-            message = "Error downloading playlist"
-            return render_template('index.html', message=message)
+        else:
+            # Create a temporary directory to store the downloaded file
+            video_dir = f'webdlp_{request_id}'
+            os.makedirs(video_dir, exist_ok=True)
 
-    else:
-        # Download a single video
-        command = ['yt-dlp', url, '--no-playlist','-o', 'bb/%(title)s.%(ext)s']
+            # Download a single video
+            command = ['yt-dlp', url, '--no-playlist','-o', f'{video_dir}/%(title)s.%(ext)s']
 
-        if quality:
-            command.extend(['-f', quality])
+            if quality:
+                command.extend(['-f', quality])
 
-        if format:
-            command.extend(['-f', 'best', '--recode-video', format])
-
-        try:
             subprocess.Popen(command)
             print("Video download started")
             message = "Video download started"
@@ -68,15 +73,30 @@ def download_video():
             time.sleep(20)
 
             # Get the filename of the downloaded file
-            filename = subprocess.check_output(['ls', 'bb']).decode().strip()
+            filename = subprocess.check_output(['ls', video_dir]).decode().strip()
+            file_path = os.path.join(video_dir, filename)
+
+            # Convert the video to the specified format using ffmpeg
+            output_filename = f"{os.path.splitext(file_path)[0]}.{format}"
+            subprocess.run(['ffmpeg', '-i', file_path, output_filename], check=True)
+            os.remove(file_path)
 
             # Send the file for download
-            return send_file(f'bb/{filename}', as_attachment=True)
+            return send_file(output_filename, as_attachment=True)
 
-        except Exception as e:
-            print("Error downloading video:", e)
-            message = "Error downloading video"
-            return render_template('index.html', message=message)
+    except Exception as e:
+        print("Error downloading video:", e)
+        message = "Error downloading video"
+        return render_template('index.html', message=message)
+
+    finally:
+        # Clean up the temporary directories and files
+        if is_playlist:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            os.remove(zip_filename)
+        else:
+            shutil.rmtree(video_dir, ignore_errors=True)
+            os.remove(output_filename)
 
 if __name__ == '__main__':
     app.run(debug=True)
