@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebDLP - Video Downloader</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
+    <style>
+        body {
+            background-color: #17183B;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+        }
+    
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 48px;
+            color: #F0EDEE;
+            margin-top: 50px;
+        }
+    
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    
+        label {
+            font-size: 20px;
+            color: #F0EDEE;
+            margin-bottom: 10px;
+            margin-top: 20px;
+            text-align: left;
+            width: 300px;
+            text-align-last: center;
+        }
+    
+        input[type="text"],
+        select {
+            font-size: 18px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            width: 300px;
+            margin-bottom: 20px;
+            background-color: #26265E;
+            color: #F0EDEE;
+        }
+        input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
+    border: 2px solid #3df1fb;
+    background-color: #26265E;
+    outline: none;
+    margin-top: 10px;
+    position: relative;
+}
+
+input[type="checkbox"]:checked:after {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    width: 5px;
+    height: 10px;
+    border: solid #3df1fb;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+
+        input[type="checkbox"] {
+            display: inline-block;
+            margin-left: 5px;
+        }
+    
+        input[type="submit"] {
+            font-size: 24px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: #3df1fb;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 30px;
+        }
+    
+        input[type="submit"]:hover {
+            background-color: #2323d7;
+        }
+    
+        select {
+            font-size: 18px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            width: 300px;
+            margin-bottom: 20px;
+            background-color: #26265E;
+            color: #F0EDEE;
+            text-align: center;
+        }
+    
+        option {
+            text-align: center;
+        }
+    
+        ::placeholder {
+            color: #F0EDEE;
+            opacity: 0.5;
+        }
+    
+        footer {
+            margin-top: 50px;
+            font-size: 14px;
+            color: #F0EDEE;
+        }
+    </style>    
+</head>
+<body>
+    <h1>WebDLP - Video Downloader</h1>
+    <form action="/download" method="post">
+        <label for="url">Video/Playlist URL:</label>
+        <input type="text" name="url" id="url" required><br><br>
+
+        <label for="quality">Quality:</label>
+        <select name="quality" id="quality">
+            <option value="">Select a quality</option>
+            <option value="best">Best</option>
+            <option value="worst">Worst</option>
+            <option value="bestvideo">Best Video</option>
+            <option value="bestaudio">Best Audio</option>
+            <option value="720p">720p</option>
+            <option value="480p">480p</option>
+            <option value="360p">360p</option>
+            <option value="240p">240p</option>
+        </select><br><br>
+
+        <label for="is_playlist">Playlist:</label>
+        <input type="checkbox" name="is_playlist" id="is_playlist"><br><br>
+
+        <label for="format">Format:</label>
+        <select name="format" id="format">
+            <option value="">Select a format</option>
+            <option value="mp4">MP4</option>
+			<option value="mp3">MP3</option>
+            <option value="mkv">MKV</option>
+            <option value="webm">WebM</option>
+            <option value="avi">AVI</option>
+            <option value="mov">MOV</option>
+            <option value="wmv">WMV</option>
+        </select><br><br>
+
+        <input type="submit" value="Download">
+    </form>
+
+    <footer>Made with ❤ by flyaway</footer>
+</body>
+</html>

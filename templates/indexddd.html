@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebDLP - Video Downloader<</title>
+</head>
+<body>
+    <h1>WebDLP - Video Downloader</h1>
+    <form action="/download" method="post">
+        <label for="url">Video/Playlist URL:</label>
+        <input type="text" name="url" id="url" required><br><br>
+
+        <label for="quality">Quality:</label>
+        <select name="quality" id="quality">
+            <option value="">Select a quality</option>
+            <option value="best">Best</option>
+            <option value="worst">Worst</option>
+            <option value="bestvideo">Best Video</option>
+            <option value="bestaudio">Best Audio</option>
+            <option value="720p">720p</option>
+            <option value="480p">480p</option>
+            <option value="360p">360p</option>
+            <option value="240p">240p</option>
+        </select><br><br>
+
+        <label for="is_playlist">Playlist:</label>
+        <input type="checkbox" name="is_playlist" id="is_playlist"><br><br>
+
+        <label for="format">Format:</label>
+        <select name="format" id="format">
+            <option value="">Select a format</option>
+            <option value="mp4">MP4</option>
+			<option value="mp3">MP3</option>
+            <option value="mkv">MKV</option>
+            <option value="webm">WebM</option>
+            <option value="avi">AVI</option>
+            <option value="mov">MOV</option>
+            <option value="wmv">WMV</option>
+        </select><br><br>
+
+        <input type="submit" value="Download">
+    </form>
+
+    <script>
+        var message = "{{ message }}";
+        if (message) {
+            alert(message);
+        }
+    </script>
+</body>
+</html>
+
