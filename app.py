@@ -4,7 +4,7 @@ import subprocess
 import os
 import zipfile
 import time
-from flask import Flask, render_template, request, send_file, redirect, url_for
+from flask import Flask, render_template, request, send_file
 
 app = Flask(__name__)
 
@@ -65,36 +65,30 @@ def download_video():
             if quality:
                 command.extend(['-f', quality])
 
-            # Start the download process in the background
-            process = subprocess.Popen(command)
+            subprocess.Popen(command)
             print("Video download started")
             message = "Video download started"
 
-            # Wait for the file to download
-            while True:
-                # Check if the file has been downloaded
-                filename = subprocess.check_output(['ls', video_dir]).decode().strip()
-                file_path = os.path.join(video_dir, filename)
-                if os.path.exists(file_path):
-                    break
-                time.sleep(1)
+            # Wait for 20 seconds for the file to download
+            time.sleep(80000)
+
+            # Get the filename of the downloaded file
+            filename = subprocess.check_output(['ls', video_dir]).decode().strip()
+            file_path = os.path.join(video_dir, filename)
 
             # Convert the video to the specified format using ffmpeg
             output_filename = f"{os.path.splitext(file_path)[0]}.{format}"
             subprocess.run(['ffmpeg', '-i', file_path, output_filename], check=True)
             os.remove(file_path)
 
-            # Redirect to the download started page
-            return redirect(url_for('download_started'))
+            # Send the file for download
+            return send_file(output_filename, as_attachment=True)
 
     except Exception as e:
         print("Error downloading video:", e)
         message = "Error downloading video"
         return render_template('index.html', message=message)
 
-@app.route('/download-started')
-def download_started():
-    return render_template('download_started.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
