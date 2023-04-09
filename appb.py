@@ -34,22 +34,17 @@ def download_video():
             if quality:
                 command.extend(['-f', quality])
 
+            if format:
+                command.extend(['--merge-output-format', format])
+
             subprocess.run(command, check=True)
             print("Playlist download complete")
 
-            # Convert the videos to the specified format using ffmpeg
-            for filename in os.listdir(temp_dir):
-                file_path = os.path.join(temp_dir, filename)
-                output_filename = f"{os.path.splitext(file_path)[0]}.{format}"
-                subprocess.run(['ffmpeg', '-i', file_path, output_filename], check=True)
-                os.remove(file_path)
-
-            # Create a zip file containing the converted files
+            # Create a zip file containing the downloaded files
             zip_filename = f'{request_id}.zip'
             with zipfile.ZipFile(zip_filename, 'w') as zip_file:
                 for filename in os.listdir(temp_dir):
-                    converted_filename = f"{os.path.splitext(filename)[0]}.{format}"
-                    zip_file.write(os.path.join(temp_dir, converted_filename), converted_filename)
+                    zip_file.write(os.path.join(temp_dir, filename), filename)
 
             # Send the zip file for download
             return send_file(zip_filename, as_attachment=True)
@@ -65,21 +60,16 @@ def download_video():
             if quality:
                 command.extend(['-f', quality])
 
-            subprocess.Popen(command)
-            print("Video download started")
-            message = "Video download started"
-
-            # Wait for 20 seconds for the file to download
-            time.sleep(20)
+            subprocess.run(command, check=True)
+            print("Video download complete")
 
             # Get the filename of the downloaded file
             filename = subprocess.check_output(['ls', video_dir]).decode().strip()
-            file_path = os.path.join(video_dir, filename)
 
-            # Convert the video to the specified format using ffmpeg
-            output_filename = f"{os.path.splitext(file_path)[0]}.{format}"
-            subprocess.run(['ffmpeg', '-i', file_path, output_filename], check=True)
-            os.remove(file_path)
+            # Convert the file to the selected format
+            output_filename = f"{video_dir}/{os.path.splitext(filename)[0]}.{format}"
+            subprocess.run(['ffmpeg', '-i', f'{video_dir}/{filename}', '-c:v', 'copy', '-c:a', 'copy', '-bsf:a', 'aac_adtstoasc', output_filename], check=True)
+            print("Video conversion complete")
 
             # Send the file for download
             return send_file(output_filename, as_attachment=True)
