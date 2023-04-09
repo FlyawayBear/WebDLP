@@ -89,14 +89,6 @@ def download_video():
         message = "Error downloading video"
         return render_template('index.html', message=message)
 
-    finally:
-        # Clean up the temporary directories and files
-        if is_playlist:
-            shutil.rmtree(temp_dir, ignore_errors=True)
-            os.remove(zip_filename)
-        else:
-            shutil.rmtree(video_dir, ignore_errors=True)
-            os.remove(output_filename)
 
 if __name__ == '__main__':
     app.run(debug=True)
