@@ -45,7 +45,47 @@
             background-color: #26265E;
             color: #F0EDEE;
         }
-    
+        input[type="checkbox"] {
+  position: relative;
+  width: 50px;
+  height: 30px;
+  -webkit-appearance: none;
+  background-color: #26265E;
+  outline: none;
+  border: 2px solid #3df1fb;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+input[type="checkbox"]:checked::before {
+  content: "Yes";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #3df1fb;
+
+}
+
+input[type="checkbox"]:not(:checked)::before {
+  content: "No";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #3df1fb;
+}
+
+input[type="checkbox"]:checked {
+  background-color: transparent;
+}
+
+input[type="checkbox"]:not(:checked) {
+  background-color: transparent;
+}
+
+
+
         input[type="checkbox"] {
             display: inline-block;
             margin-left: 5px;
@@ -56,7 +96,7 @@
             padding: 10px 20px;
             border-radius: 5px;
             border: none;
-            background-color: #52e2e9;
+            background-color: #3df1fb;
             color: white;
             cursor: pointer;
             transition: background-color 0.3s ease;
@@ -93,24 +133,6 @@
             font-size: 14px;
             color: #F0EDEE;
         }
-        .btn-group label {
-  display: inline-block;
-  margin-right: 5px;
-  cursor: pointer;
-  padding: 8px 16px;
-  border-radius: 5px;
-  color: white;
-  background-color: #52e2e9;
-}
-
-.btn-group input[type="radio"] {
-  display: none;
-}
-
-.btn-group input[type="radio"]:checked + label {
-  background-color: #2323d7;
-}
-
     </style>    
 </head>
 <body>
@@ -132,13 +154,8 @@
             <option value="240p">240p</option>
         </select><br><br>
 
-        <label>Playlist:</label>
-        <div class="btn-group">
-          <input type="radio" id="is_playlist_yes" name="is_playlist" value="yes">
-          <label for="is_playlist_yes">Yes</label>
-          <input type="radio" id="is_playlist_no" name="is_playlist" value="no" checked>
-          <label for="is_playlist_no">No</label>
-        </div>           
+        <label for="is_playlist">Playlist:</label>
+        <input type="checkbox" name="is_playlist" id="is_playlist"><br><br>
 
         <label for="format">Format:</label>
         <select name="format" id="format">
