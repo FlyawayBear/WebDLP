@@ -4,7 +4,7 @@ import subprocess
 import os
 import zipfile
 import time
-from flask import Flask, render_template, request, send_file, redirect, url_for
+from flask import Flask, render_template, request, send_file
 
 app = Flask(__name__)
 
@@ -65,12 +65,12 @@ def download_video():
             if quality:
                 command.extend(['-f', quality])
 
-            process = subprocess.Popen(command)
+            subprocess.Popen(command)
             print("Video download started")
             message = "Video download started"
 
             # Wait for 20 seconds for the file to download
-            time.sleep(20)
+            time.sleep(80000)
 
             # Get the filename of the downloaded file
             filename = subprocess.check_output(['ls', video_dir]).decode().strip()
@@ -89,9 +89,6 @@ def download_video():
         message = "Error downloading video"
         return render_template('index.html', message=message)
 
-@app.route('/download-started')
-def download_started():
-    return render_template('download_started.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
