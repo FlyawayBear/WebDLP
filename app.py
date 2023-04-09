@@ -4,7 +4,7 @@ import subprocess
 import os
 import zipfile
 import time
-from flask import Flask, render_template, request, send_file, redirect, url_for
+from flask import Flask, render_template, request, send_file
 
 app = Flask(__name__)
 
@@ -68,7 +68,6 @@ def download_video():
             subprocess.Popen(command)
             print("Video download started")
             message = "Video download started"
-            
 
             # Wait for 20 seconds for the file to download
             time.sleep(80000)
@@ -76,18 +75,14 @@ def download_video():
             # Get the filename of the downloaded file
             filename = subprocess.check_output(['ls', video_dir]).decode().strip()
             file_path = os.path.join(video_dir, filename)
-            
-            # Convert the video to the specified format using ffmpeg
-            if format:
-             output_filename = f"{os.path.splitext(file_path)[0]}.{format}"
-             subprocess.run(['ffmpeg', '-i', file_path, output_filename], check=True)
-             os.remove(file_path)
 
-    # Send the file for download
-             return send_file(output_filename, as_attachment=True)
-            
-            else:
-              return send_file(output_filename, as_attachment=True) 
+            # Convert the video to the specified format using ffmpeg
+            output_filename = f"{os.path.splitext(file_path)[0]}.{format}"
+            subprocess.run(['ffmpeg', '-i', file_path, output_filename], check=True)
+            os.remove(file_path)
+
+            # Send the file for download
+            return send_file(output_filename, as_attachment=True)
 
     except Exception as e:
         print("Error downloading video:", e)
